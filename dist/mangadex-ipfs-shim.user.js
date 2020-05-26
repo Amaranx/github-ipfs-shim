@@ -11,21 +11,22 @@
 // @require      https://cdn.jsdelivr.net/npm/ipfs-http-client/dist/index.min.js
 // @require      https://unpkg.com/is-ipfs/dist/index.min.js
 // @require      https://unpkg.com/cids/dist/index.min.js
-// @require      https://unpkg.com/ipld-dag-cbor/dist/index.min.js
 // @require      https://cdn.jsdelivr.net/npm/wolfy87-eventemitter@5.2.9/EventEmitter.min.js
 // ==/UserScript==
 
 // src/ipfs.js
 const CID = window.Cids
 const isIpns = window.isIPFS
-
 //change depending on local API endpoint
-const clientSettings = {
+const nodeSettings = {
     host: '127.0.0.1',
     protocol: 'http',
     port: 5001,
 }
-const ipfs = window.IpfsHttpClient(clientSettings)
+
+
+const ipfs = window.IpfsHttpClient(nodeSettings)
+const ipnsHead = 'QmepGawfUvLmxo43bLEbNWoeHhmtEMUuQLzs3ViBapcjDP'
 
 function getPageURL(mfsPath) {
     return new Promise(async function(resolve, reject) { 
@@ -43,8 +44,8 @@ function getPageURL(mfsPath) {
 }
 
 function addPage(mfsPath, url) {
-    let path = url //TODO make MFS path
-    ipfs.files.write(path, blob, {flush:true, create:true, parents:true})
+    let path = mfsPath //TODO make MFS path
+    ipfs.files.write(path, urlSource(url), {flush:true, create:true, parents:true})
     
     let page_urls = chapterData.page_array.map(function(filename) {
             return chapterData.server + chapterData.hash + '/' + filename;
@@ -186,20 +187,25 @@ function _createPageCache(chapter) {
     this._pageCache.clear()
     this._preloadSet.clear()
     this._preloading = false
-    for (let pg = 1; pg <= chapter.totalPages || 0; ++pg) {
-      //SCRIPT CHANGES THIS
-      const url = this.settings.dataSaver ? chapter.imageURL(pg).replace('/data/', '/data-saver/') : chapter.imageURL(pg)
-      let ipnsUrl = new URL(chapter.imageURL(pg).replace('/data/', '')).pathname  //TODO replace
-      const page = new ReaderPageModel(pg, chapter.id, url, ipnsUrl)
-      this._pageCache.set(pg, page)
-      page.on('statechange', (page) => {
-        switch(page.state) {
-          case ReaderPageModel.STATE_LOADING: return this.trigger('pageloading', [page])
-          case ReaderPageModel.STATE_LOADED:  return this.trigger('pageload', [page])
-          case ReaderPageModel.STATE_ERROR:   return this.trigger('pageerror', [page])
-        }
-      })
-    }
+    let resolvedIpns = ipfs.name.resolve(ipnsHead)
+    resolvedIpns.then((ipns) => {
+      for (let pg = 1; pg <= chapter.totalPages || 0; ++pg) {
+        //SCRIPT CHANGES THIS
+        const url = this.settings.dataSaver ? chapter.imageURL(pg).replace('/data/', '/data-saver/') : chapter.imageURL(pg)
+        let ipnsUrl = ipns + '/' + new URL(chapter.imageURL(pg).replace('/data/', '')).pathname  //TODO replace
+        console.log(ipnsUrl)
+        const page = new ReaderPageModel(pg, chapter.id, url, ipnsUrl)
+        this._pageCache.set(pg, page)
+        page.on('statechange', (page) => {
+          switch(page.state) {
+            case ReaderPageModel.STATE_LOADING: return this.trigger('pageloading', [page])
+            case ReaderPageModel.STATE_LOADED:  return this.trigger('pageload', [page])
+            case ReaderPageModel.STATE_ERROR:   return this.trigger('pageerror', [page])
+          }
+        })
+      }
+    })
+
   }
 
 // src/index.js
@@ -236,4 +242,8 @@ function _createPageCache(chapter) {
 
     let info = loadChapterInfo()
     console.log(info)
+
+
+    const dagCbor = window.IpldDagCbor
+    const cid = await ipfs.dag.put()
   })();

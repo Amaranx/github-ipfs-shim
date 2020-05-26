@@ -104,18 +104,23 @@ function _createPageCache(chapter) {
     this._pageCache.clear()
     this._preloadSet.clear()
     this._preloading = false
-    for (let pg = 1; pg <= chapter.totalPages || 0; ++pg) {
-      //SCRIPT CHANGES THIS
-      const url = this.settings.dataSaver ? chapter.imageURL(pg).replace('/data/', '/data-saver/') : chapter.imageURL(pg)
-      let ipnsUrl = new URL(chapter.imageURL(pg).replace('/data/', '')).pathname  //TODO replace
-      const page = new ReaderPageModel(pg, chapter.id, url, ipnsUrl)
-      this._pageCache.set(pg, page)
-      page.on('statechange', (page) => {
-        switch(page.state) {
-          case ReaderPageModel.STATE_LOADING: return this.trigger('pageloading', [page])
-          case ReaderPageModel.STATE_LOADED:  return this.trigger('pageload', [page])
-          case ReaderPageModel.STATE_ERROR:   return this.trigger('pageerror', [page])
-        }
-      })
-    }
+    console.log(this)
+    resolveIpnsWithChHash(ipnsHead, this.hash).then((ipns) => {
+      for (let pg = 1; pg <= chapter.totalPages || 0; ++pg) {
+        //SCRIPT CHANGES THIS
+        const url = this.settings.dataSaver ? chapter.imageURL(pg).replace('/data/', '/data-saver/') : chapter.imageURL(pg)
+        let ipnsUrl = ipns + '/' + new URL(chapter.imageURL(pg).replace('/data/', '')).pathname  //TODO replace
+        console.log(ipnsUrl)
+        const page = new ReaderPageModel(pg, chapter.id, url, ipnsUrl)
+        this._pageCache.set(pg, page)
+        page.on('statechange', (page) => {
+          switch(page.state) {
+            case ReaderPageModel.STATE_LOADING: return this.trigger('pageloading', [page])
+            case ReaderPageModel.STATE_LOADED:  return this.trigger('pageload', [page])
+            case ReaderPageModel.STATE_ERROR:   return this.trigger('pageerror', [page])
+          }
+        })
+      }
+    })
+
   }

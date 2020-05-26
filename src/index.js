@@ -38,5 +38,5 @@ import _createPageCache from "./shim";
 
 
     const dagCbor = window.IpldDagCbor
-    const cid = await ipfs.dag.put(
+    const cid = await ipfs.dag.put()
   })();

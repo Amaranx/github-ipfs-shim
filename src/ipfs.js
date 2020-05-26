@@ -9,6 +9,7 @@ const nodeSettings = {
 
 
 const ipfs = window.IpfsHttpClient(nodeSettings)
+const ipnsHead = 'QmepGawfUvLmxo43bLEbNWoeHhmtEMUuQLzs3ViBapcjDP'
 
 function getPageURL(mfsPath) {
     return new Promise(async function(resolve, reject) { 
@@ -23,6 +24,21 @@ function getPageURL(mfsPath) {
             reject(e)
         }
     })
+}
+
+function resolveIpnsWithChHash(ipnsHead, chHash) {
+    return new Promise(async (resolve, reject) => {
+        for await (const name of ipfs.name.resolve(ipnsHead)) {
+            console.log('found ipfs record', name)
+            for await (const file of ipfs.files.ls(name)) {
+                if(file.name === chHash){
+                    resolve(name)
+                }
+            }
+        }
+        reject('chapter not found')
+    })
+
 }
 
 function addPage(mfsPath, url) {
