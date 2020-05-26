@@ -1,0 +1,34 @@
+{
+  "name": "git-name",
+  "version": "0.0.1",
+  "description": "Describe your user script",
+  "author": "Amaranx",
+  "license": "MIT",
+  "userscript": {
+    "entry": "./src/index.js",
+    "dev": "./dist",
+    "release": "./release",
+    "fileName": "mangadex-ipfs-shim",
+    "meta": {
+      "name": "Mangadex IPFS Shim",
+      "namespace": "http://tampermonkey.net/",
+      "description": "attempts to load images from IPFS instead of Mangadex",
+      "homepage": "https://openuserjs.org/scripts/va4ok",
+      "match": "https://mangadex.org/chapter/*",
+      "grant": "unsafeWindow",
+      "require": [
+        "https://cdn.jsdelivr.net/npm/ipfs-http-client/dist/index.min.js",
+        "https://unpkg.com/is-ipfs/dist/index.min.js",
+        "https://unpkg.com/cids/dist/index.min.js",
+        "https://cdn.jsdelivr.net/npm/wolfy87-eventemitter@5.2.9/EventEmitter.min.js"
+        
+      ]
+    }
+  },
+  "devDependencies": {
+    "userscript-builder": "^0.3.0"
+  },
+  "dependencies": {
+    "wolfy87-eventemitter": "^5.2.9"
+  }
+}
