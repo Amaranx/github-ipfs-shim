@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         Mangadex IPFS Shim
 // @namespace    http://tampermonkey.net/
-// @version      0.1.0
+// @version      0.1.1
 // @description  attempts to load images from IPFS instead of Mangadex
 // @author       Amaranx
 // @match        https://mangadex.org/chapter/*
 // @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
 // @license      MIT
-// @homepage     https://openuserjs.org/scripts/va4ok
+// @homepage     https://github.com/Amaranx/github-ipfs-shim
 // @require      https://cdn.jsdelivr.net/npm/ipfs-http-client/dist/index.min.js
 // @require      https://unpkg.com/is-ipfs/dist/index.min.js
 // @require      https://unpkg.com/cids/dist/index.min.js

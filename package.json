@@ -1,7 +1,7 @@
 {
   "name": "git-name",
-  "version": "0.1.0",
-  "description": "Describe your user script",
+  "version": "0.1.1",
+  "description": "uses IPFS as a primary cache for loading chapters at https://mangadex.org",
   "author": "Amaranx",
   "license": "MIT",
   "userscript": {
@@ -13,7 +13,7 @@
       "name": "Mangadex IPFS Shim",
       "namespace": "http://tampermonkey.net/",
       "description": "attempts to load images from IPFS instead of Mangadex",
-      "homepage": "https://openuserjs.org/scripts/va4ok",
+      "homepage": "https://github.com/Amaranx/github-ipfs-shim",
       "match": "https://mangadex.org/chapter/*",
       "grant": [
         "unsafeWindow",
@@ -29,8 +29,5 @@
   },
   "devDependencies": {
     "userscript-builder": "^0.3.0"
-  },
-  "dependencies": {
-    "wolfy87-eventemitter": "^5.2.9"
   }
 }
