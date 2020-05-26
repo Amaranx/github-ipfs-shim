@@ -1,6 +1,6 @@
 {
   "name": "git-name",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Describe your user script",
   "author": "Amaranx",
   "license": "MIT",
@@ -15,13 +15,15 @@
       "description": "attempts to load images from IPFS instead of Mangadex",
       "homepage": "https://openuserjs.org/scripts/va4ok",
       "match": "https://mangadex.org/chapter/*",
-      "grant": "unsafeWindow",
+      "grant": [
+        "unsafeWindow",
+        "GM_xmlhttpRequest"
+      ],
       "require": [
         "https://cdn.jsdelivr.net/npm/ipfs-http-client/dist/index.min.js",
         "https://unpkg.com/is-ipfs/dist/index.min.js",
         "https://unpkg.com/cids/dist/index.min.js",
         "https://cdn.jsdelivr.net/npm/wolfy87-eventemitter@5.2.9/EventEmitter.min.js"
-        
       ]
     }
   },

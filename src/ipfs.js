@@ -10,8 +10,10 @@ const nodeSettings = {
 
 const ipfs = window.IpfsHttpClient(nodeSettings)
 const ipnsHead = 'QmepGawfUvLmxo43bLEbNWoeHhmtEMUuQLzs3ViBapcjDP'
+var ipfsURL = undefined
 
-function getPageURL(mfsPath) {
+
+function loadPage(mfsPath) {
     return new Promise(async function(resolve, reject) { 
         try{
             const chunks = []
@@ -26,30 +28,16 @@ function getPageURL(mfsPath) {
     })
 }
 
-function resolveIpnsWithChHash(ipnsHead, chHash) {
-    return new Promise(async (resolve, reject) => {
-        for await (const name of ipfs.name.resolve(ipnsHead)) {
-            console.log('found ipfs record', name)
-            for await (const file of ipfs.files.ls(name)) {
-                if(file.name === chHash){
-                    resolve(name)
-                }
-            }
-        }
-        reject('chapter not found')
-    })
-
-}
-
 function addPage(mfsPath, url) {
-    let path = mfsPath //TODO make MFS path
-    
+    console.log('adding file to ipfs', mfsPath, url )
     GM_xmlhttpRequest({
         method:   'GET',
         url:      url,
         responseType: 'blob',
-        onload:   function (data) {
-            ipfs.files.write(path, data.response, {flush:true, create:true, parents:true})
+        onload:   async function (data) {
+            await ipfs.files.write(mfsPath, data.response, {parents:true, create:true, flush:true})
+            return loadPage(mfsPath)
+            //console.log(ipfs.files.stat(mfsPath, {hash:true}))
         },
         onerror:  function (data) {
             //alert('A page-download failed. Check the console for more details.');

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Mangadex IPFS Shim
 // @namespace    http://tampermonkey.net/
-// @version      0.0.1
+// @version      0.1.0
 // @description  attempts to load images from IPFS instead of Mangadex
 // @author       Amaranx
 // @match        https://mangadex.org/chapter/*
@@ -15,7 +15,6 @@
 // @require      https://cdn.jsdelivr.net/npm/wolfy87-eventemitter@5.2.9/EventEmitter.min.js
 // ==/UserScript==
 
-// src/ipfs.js
 const CID = window.Cids
 const isIpns = window.isIPFS
 //change depending on local API endpoint
@@ -64,7 +63,6 @@ function addPage(mfsPath, url) {
     });
 }
 
-// src/shim.js
 const EventEmitter = window.EventEmitter
 
 //this is a copy of 
@@ -196,7 +194,6 @@ let waitForIpfsLink = async() => {
     }
 }
 
-// src/index.js
 // http://docs.ipfs.io.ipns.localhost:8080/reference/api/http/#api-v0-add
 // 'http://127.0.0.1:8080/ipfs/QmQS1rqmjYfDWwLwRzHtEuGcpRBqDEYCS3BSVDNqdn78i8'
 //ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["https://mangadex.org", "http://127.0.0.1:5001", "https://webui.ipfs.io"]'

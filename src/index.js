@@ -11,14 +11,16 @@ import _createPageCache from "./shim";
 
 (async function () {
     'use strict';
-
+    for await (const name of ipfs.name.resolve(ipnsHead)) {
+        console.info('found ipfs instance', name)
+        ipfsURL = name
+    }
 
     let loadReader = async() => {
-        console.log("waiting for variable");
+        console.info("waiting to inject");
         while(!unsafeWindow.hasOwnProperty("reader")){ 
             await new Promise(resolve => setTimeout(resolve, 5));
         }
-        console.log("variable is defined");
         return unsafeWindow.reader
     }
 
@@ -26,17 +28,15 @@ import _createPageCache from "./shim";
         while(reader.model.chapter === null){
             await new Promise(resolve => setTimeout(resolve, 5));
         }
-        console.log("info is defined");
+        console.info("chapter info retreived");
         return reader.model.chapter
     }
 
     const reader = await loadReader()
     reader.model._createPageCache = _createPageCache
+    console.info("injected");
 
     let info = loadChapterInfo()
-    console.log(info)
+    //console.log(info)
 
-
-    const dagCbor = window.IpldDagCbor
-    const cid = await ipfs.dag.put()
   })();

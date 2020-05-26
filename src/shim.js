@@ -47,18 +47,18 @@ class ReaderPageModel extends EventEmitter {
           return resolve(this)
         } else {
           if (!this.loading) {
-            console.log('loading img')
+            //console.log('loading img', this._ipnsUrl)
             this._error = null
             //ADD
-            await getPageURL(this._ipnsUrl).catch((e) => {
+            let ipfsPage = await loadPage(this._ipnsUrl).catch((e) => {
               if(e.message === 'file does not exist'){
                 return addPage(this._ipnsUrl, this._url)
               } else { console.error(e) }
-              
             })
+            //console.log('page', this._ipnsUrl)
             //SCRIPT CHANGES THIS
             //this._image.src = this._url + (breakCache ? `?t=${Date.now()}` : '')
-            this._image.src = this._url + (breakCache ? `?t=${Date.now()}` : '')
+            this._image.src = ipfsPage//'https://ipfs.io/ipfs/QmQS1rqmjYfDWwLwRzHtEuGcpRBqDEYCS3BSVDNqdn78i8?filename=fucking-funny.png'
             this.state = ReaderPageModel.STATE_LOADING
           }
           this.once('statechange', () => {
@@ -97,30 +97,34 @@ class ReaderPageModel extends EventEmitter {
   }
   
 
-function _createPageCache(chapter) {
+  function _createPageCache(chapter) {
     for (let [i, page] of this._pageCache) {
       page.off()
     }
     this._pageCache.clear()
     this._preloadSet.clear()
     this._preloading = false
-    console.log(this)
-    resolveIpnsWithChHash(ipnsHead, this.hash).then((ipns) => {
-      for (let pg = 1; pg <= chapter.totalPages || 0; ++pg) {
+
+
+    for (let pg = 1; pg <= chapter.totalPages || 0; ++pg) {
         //SCRIPT CHANGES THIS
         const url = this.settings.dataSaver ? chapter.imageURL(pg).replace('/data/', '/data-saver/') : chapter.imageURL(pg)
-        let ipnsUrl = ipns + '/' + new URL(chapter.imageURL(pg).replace('/data/', '')).pathname  //TODO replace
-        console.log(ipnsUrl)
+        let ipnsUrl = '/Mangadex/' + this._chapter._data.hash + new URL(chapter.imageURL(pg).replace('/data/', '')).pathname  //TODO replace
         const page = new ReaderPageModel(pg, chapter.id, url, ipnsUrl)
         this._pageCache.set(pg, page)
         page.on('statechange', (page) => {
-          switch(page.state) {
-            case ReaderPageModel.STATE_LOADING: return this.trigger('pageloading', [page])
-            case ReaderPageModel.STATE_LOADED:  return this.trigger('pageload', [page])
-            case ReaderPageModel.STATE_ERROR:   return this.trigger('pageerror', [page])
-          }
+            switch(page.state) {
+                case ReaderPageModel.STATE_LOADING: return this.trigger('pageloading', [page])
+                case ReaderPageModel.STATE_LOADED:  return this.trigger('pageload', [page])
+                case ReaderPageModel.STATE_ERROR:   return this.trigger('pageerror', [page])
+            }
         })
-      }
-    })
-
+    }
   }
+
+let waitForIpfsLink = async() => {
+    console.info("waiting for ipfs instance");
+    while(typeof ipfsURL === undefined){ 
+        await new Promise(resolve => setTimeout(resolve, 5));
+    }
+}
