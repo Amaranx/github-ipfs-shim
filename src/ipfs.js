@@ -43,37 +43,17 @@ function resolveIpnsWithChHash(ipnsHead, chHash) {
 
 function addPage(mfsPath, url) {
     let path = mfsPath //TODO make MFS path
-    ipfs.files.write(path, urlSource(url), {flush:true, create:true, parents:true})
     
-    let page_urls = chapterData.page_array.map(function(filename) {
-            return chapterData.server + chapterData.hash + '/' + filename;
-        })
-
-    let interval = setInterval(() => {
-        console.log('here', localStorage.getItem("parallel-downloads") || 3)
-
-        if (active_downloads >= (localStorage.getItem("parallel-downloads") || 3) && page_urls.length > 0) {
-            let to_download = page_urls.shift();
-            let current_page = page_count - page_urls.length;
-
-            active_downloads++;
-            GM_xmlhttpRequest({
-                method:   'GET',
-                url:      to_download,
-                responseType: 'blob',
-                onload:   function (data) {
-                    addBlob('/Mangadex/' + mangaId + '/' + chapterId + '/' + data.finalUrl.substring(data.finalUrl.lastIndexOf('/')+1), data.response)
-                    //if (!failed) { setProgress(id, ((page_count -page_urls.length) /page_count) * 100); }
-                    active_downloads--;
-                },
-                onerror:  function (data) {
-                    //alert('A page-download failed. Check the console for more details.');
-                    console.error(data);
-                    clearInterval(interval);
-                }
-            });
-        } else if (active_downloads === 0 && page_urls.length === 0) {
-            clearInterval(interval);
+    GM_xmlhttpRequest({
+        method:   'GET',
+        url:      url,
+        responseType: 'blob',
+        onload:   function (data) {
+            ipfs.files.write(path, data.response, {flush:true, create:true, parents:true})
+        },
+        onerror:  function (data) {
+            //alert('A page-download failed. Check the console for more details.');
+            console.error(data);
         }
-    }, 500);
+    });
 }
